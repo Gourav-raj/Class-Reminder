@@ -6,3 +6,6 @@ Pings you on whatsapp / Discord when your class starts and class ends
     then meet your friend "Class Reminder" she will ping you on your discord whenever a class 
     starts and class ends
 ```
+#Discord ScreenShot
+![Alt text](/Discord.png?raw=true "Discord ScreenShot")
+
