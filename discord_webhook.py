@@ -4,6 +4,7 @@ from discord_webhooks import DiscordWebhooks
 
 webhook_url = ''
 
+
 def send_msg(class_name,status,start_time,end_time):
 
     WEBHOOK_URL = webhook_url 

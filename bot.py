@@ -107,14 +107,20 @@ def joinclass(class_name,start_time,end_time):
 
 	try_time = int(start_time.split(":")[1]) + 15
 	try_time = start_time.split(":")[0] + ":" + str(try_time)
-	print("Class Joined")
-	discord_webhook.send_msg(class_name=class_name,status="running",start_time=start_time,end_time=end_time)
-	#now schedule leaving class
-	tmp = "%H:%M"
-	class_running_time = datetime.strptime(end_time,tmp) - datetime.strptime(start_time,tmp)
-	time.sleep(class_running_time.seconds)
-	print("Class left")
-	discord_webhook.send_msg(class_name=class_name,status="ended",start_time=start_time,end_time=end_time)
+
+	now=datetime.now()
+	cur_time=now.strftime("%H:%M")
+	print(cur_time)
+	if(cur_time>=start_time and cur_time<end_time):
+		print("Class Joined")
+		discord_webhook.send_msg(class_name=class_name,status="running",start_time=start_time,end_time=end_time)
+		#now schedule leaving class
+		tmp = "%H:%M"
+		class_running_time = datetime.strptime(end_time,tmp) - datetime.strptime(cur_time,tmp)
+		print(class_running_time)
+		time.sleep(class_running_time.seconds)
+		print("Class left")
+		discord_webhook.send_msg(class_name=class_name,status="ended",start_time=start_time,end_time=end_time)
 
 def sched():
 	conn = sqlite3.connect('my_database.db')
@@ -155,6 +161,7 @@ def sched():
 
 
 if __name__=="__main__":
+	# joinclass("Test","20:07","20:10")
 	op = int(input(("1. Modify Timetable\n2. View Timetable\n3. Start Bot\nEnter option : ")))
 	
 	if(op==1):
