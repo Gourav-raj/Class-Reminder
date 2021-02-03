@@ -8,3 +8,5 @@ Pings you on whatsapp / Discord when your class starts and class ends
 ```
 ![Alt text](/Discord.png?raw=true "Discord ScreenShot")
 
+```
+This bot is Running on Python Anywhere[Cloud] thus You donot have to run python script everyday on your pc.
