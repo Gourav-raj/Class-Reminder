@@ -10,11 +10,13 @@ import re
 import os.path
 from os import path
 import sqlite3
+import calendar
 import schedule
 from datetime import datetime
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import NoSuchElementException   
-import discord_webhook     
+import discord_webhook    
+from datetime import timedelta 
 #gourav:p
 # LEARNIG SELENIUM
 # driver= webdriver.Chrome(executable_path="./chromedriver")
@@ -122,46 +124,68 @@ def joinclass(class_name,start_time,end_time):
 		print("Class left")
 		discord_webhook.send_msg(class_name=class_name,status="ended",start_time=start_time,end_time=end_time)
 
+
 def sched():
+	#class start time 09:00
+	tmp="%H:%M"
+	#cur_day
+	cur_day=calendar.day_name[datetime.today().weekday()]
+	if(cur_day=="Sunday" or cur_day=="Saturday"):
+		print("To day is", cur_day,"no class today")
+		rem_time=720
+		time.sleep(rem_time)
+		sched()
+	
+	#connect to sql
 	conn = sqlite3.connect('my_database.db')
 	c=conn.cursor()
-	for row in c.execute('SELECT * FROM timetable'):
-		#schedule all classes
-		name = row[0]
-		start_time = row[1]
-		end_time = row[2]
-		day = row[3]
-
-		if day.lower()=="monday":
-			schedule.every().monday.at(start_time).do(joinclass,name,start_time,end_time)
-			print("Scheduled class '%s' on %s at %s"%(name,day,start_time))
-		if day.lower()=="tuesday":
-			schedule.every().tuesday.at(start_time).do(joinclass,name,start_time,end_time)
-			print("Scheduled class '%s' on %s at %s"%(name,day,start_time))
-		if day.lower()=="wednesday":
-			schedule.every().wednesday.at(start_time).do(joinclass,name,start_time,end_time)
-			print("Scheduled class '%s' on %s at %s"%(name,day,start_time))
-		if day.lower()=="thursday":
-			schedule.every().thursday.at(start_time).do(joinclass,name,start_time,end_time)
-			print("Scheduled class '%s' on %s at %s"%(name,day,start_time))
-		if day.lower()=="friday":
-			schedule.every().friday.at(start_time).do(joinclass,name,start_time,end_time)
-			print("Scheduled class '%s' on %s at %s"%(name,day,start_time))
-		if day.lower()=="saturday":
-			schedule.every().saturday.at(start_time).do(joinclass,name,start_time,end_time)
-			print("Scheduled class '%s' on %s at %s"%(name,day,start_time))
-		if day.lower()=="sunday":
-			schedule.every().sunday.at(start_time).do(joinclass,name,start_time,end_time)
-			print("Scheduled class '%s' on %s at %s"%(name,day,start_time))
-
-
 	while True:
-		schedule.run_pending()
 		time.sleep(1)
+		cur_time=datetime.now().strftime("%H:%M")
+		print(cur_time)
+		min_time='20:00'
+		flg=0
+		for row in c.execute('SELECT * FROM timetable where day =?',(cur_day,)):
+			#schedule all classes
+			name = row[0]
+			start_time = row[1]
+			end_time = row[2]
+			day = row[3]
+			print(start_time)
+			if(cur_time>=start_time and cur_time<=end_time):
+				joinclass(name,start_time,end_time)
+				cur_time=datetime.now().strftime("%H:%M")
+			if(end_time>cur_time):
+				flg=1
+				min_time=min(start_time,min_time)
+		if(flg==0):
+			print(cur_time)
+			print("All classes done for today")
+			break
+		else:
+			print(min_time)
+			class_running_time = datetime.strptime(min_time,tmp) - datetime.strptime(cur_time,tmp)
+			print(abs(class_running_time).total_seconds())
+			time.sleep(abs(class_running_time).total_seconds())
+			sched()
+	
+	cur_time=datetime.now().strftime("%H:%M")
+	cls_st="09:00"
+	class_running_time = datetime.strptime(cls_st,tmp) - datetime.strptime(cur_time,tmp)
+	time.sleep(abs(class_running_time).total_seconds())
+	sched()
+
+	
+
+			
+
+		
+
+		
 
 
 if __name__=="__main__":
-	# joinclass("Test","20:07","20:10")
+	# joinclass("Test","16:07","20:10")
 	op = int(input(("1. Modify Timetable\n2. View Timetable\n3. Start Bot\nEnter option : ")))
 	
 	if(op==1):
