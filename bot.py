@@ -132,8 +132,11 @@ def sched():
 	cur_day=calendar.day_name[datetime.today().weekday()]
 	if(cur_day=="Sunday" or cur_day=="Saturday"):
 		print("To day is", cur_day,"no class today")
-		rem_time=720
-		time.sleep(rem_time)
+		discord_webhook.send_msg(class_name=cur_day,status="ended",start_time="No class",end_time="No class")
+		cls_st="09:00"
+		cur_time=datetime.now().strftime("%H:%M")
+		class_running_time = datetime.strptime(cls_st,tmp) - datetime.strptime(cur_time,tmp)
+		time.sleep(abs(class_running_time).total_seconds())
 		sched()
 	
 	#connect to sql
